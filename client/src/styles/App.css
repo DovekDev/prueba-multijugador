@@ -1,0 +1,144 @@
+@import url('http://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sour+Gummy:ital,wght@0,100..900;1,100..900&display=swap');
+
+body {
+    font-family: "Sour Gummy", sans-serif;
+    color: aliceblue;
+}
+
+h3,
+.h3 {
+    font-size: 20px;
+    font-weight: 600;
+}
+
+h1,
+.h1,
+h2,
+.h2,
+h3,
+.h3,
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+    margin-top: 0;
+    /* font-family: montserrat, sans-serif; */
+}
+
+a {
+    text-decoration: none;
+    color: aliceblue;
+}
+
+.transition-soft {
+    -webkit-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+
+.logo-text-container {
+    display: inline-block;
+    max-width: 450px;
+    margin: 15px 0;
+}
+
+.hidden {
+    display: none
+}
+
+.logo-img {
+    width: auto;
+    height: auto;
+    margin: 15px 0;
+    vertical-align: middle;
+    max-width: 90%;
+    max-height: 50px;
+    filter: invert(1);
+}
+
+.botones-jugar {
+    position:fixed;
+    top: 50%;
+    right: 40%;
+    width: max-content;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.jugar-btn-sp {
+    width: max-content;
+    height: 60px;
+    background-color: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(255,255,255,0.5);
+}
+
+.jugar-btn-mp {
+    width: max-content;
+    height: 60px;
+    background-color: #25D366;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(255,255,255,0.5);
+}
+
+@media (max-width: 767px) {
+
+    .botones-jugar {
+        position:fixed;
+        top: 32%;
+        right: 0%;
+        width: max-content;
+        height: 60px;
+        display: flex;
+        flex-flow: column;
+        align-items: center;
+        justify-self: anchor-center;
+    }
+
+    .jugar-btn-sp {
+        width: max-content;
+        height: 60px;
+        background-color: #25D366;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(255,255,255,0.5);
+        margin: 5px;
+        text-decoration: none;
+    }
+
+    .jugar-btn-mp {
+        width: max-content;
+        height: 60px;
+        background-color: #25D366;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(255,255,255,0.5);
+        margin: 5px;
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,9 @@
+# Node modules
+client/node_modules/
+server/node_modules/
+
+# Build temporal
+client/build/
+
+# Logs
+*.log

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Messi",
+    "img": "https://imgur.com/4c4QaUg.png"
+  },
+  {
+    "id": 2,
+    "name": "Ronaldo",
+    "img": "https://imgur.com/4c4QaUg.png"
+  },
+  {
+    "id": 3,
+    "name": "Maradona",
+    "img": "https://imgur.com/4c4QaUg.png"
+  },
+  {
+    "id": 4,
+    "name": "Riquelme",
+    "img": "https://imgur.com/4c4QaUg.png"
+  },
+  {
+    "id": 5,
+    "name": "Pele",
+    "img": "https://imgur.com/4c4QaUg.png"
+  },
+  {
+    "id": 6,
+    "name": "Neymar",
+    "img": "https://imgur.com/4c4QaUg.png"
+  }
+]
