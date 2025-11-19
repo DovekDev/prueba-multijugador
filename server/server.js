@@ -1,9 +1,10 @@
+require("dotenv").config();
 const express = require('express')
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
-const fs = require("fs");
 const path = require("path");
+const mongoose = require("mongoose");
 
 const app = express()
 const server = http.createServer(app);
@@ -13,53 +14,69 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client/build")));
 
-// Ruta del archivo JSON
-const cartasFile = path.join(__dirname, "cartas.json");
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log("Conectado a MongoDB Atlas"))
+.catch(err => console.log("Error de conexión a MongoDB:", err));
 
-// Funcion para leer cartas desde el archivo
-function loadCartas() {
+// Ruta de las cartas
+const Carta = require("./models/Carta");
+
+let cartasDisponibles = [];
+
+async function resetCartasDisponibles() {
     try {
-        const data = fs.readFileSync(cartasFile, "utf-8");
-        return JSON.parse(data);
+        const todas = await Carta.find();
+        cartasDisponibles = [...todas];
     } catch (err) {
-        return [];
+        console.error("Error cargando cartas desde MongoDB:", err);
+        cartasDisponibles = [];
     }
 }
 
-function saveCartas(cartas) {
-    fs.writeFileSync(cartasFile, JSON.stringify(cartas, null, 2));
-}
-
-let cartas = loadCartas();
-let cartasDisponibles = [...cartas];
-let nextId = cartas.length > 0 ? Math.max(...cartas.map(c => c.id)) + 1 : 1;
-
 // API de cartas
-app.get("/api/cartas", (req, res) => {
-    fs.readFile(cartasFile, "utf-8", (err, data) => {
-        if (err) {
-            return res.status(500).json({ error: "No se pudo leer el archivo de cartas" });
-        }
-        res.json(JSON.parse(data));
-    });
+app.get("/api/cartas", async (req, res) => {
+    try {
+        const cartas = await Carta.find();
+        res.json(cartas);
+    } catch (err) {
+        res.status(500).json({ error: "Error al leer cartas"});
+    }
 });
 
 // --- CRUD de Cartas ---
+app.post('/cartas', async (req, res) => {
+    const { name, img, thumbnail } = req.body;
+    if (!name) return res.status(400).json({ error: "Falta el nombre" });
 
-app.post('/cartas', function (req, res) {
-    const { name, img } = req.body;
-    if (!name || !img) return res.status(400).json({ error: "Faltan datos" });
-    const nuevaCarta = { id: nextId++, name, img };
-    cartas.push(nuevaCarta);
-    saveCartas(cartas);
-    res.json(nuevaCarta);
+    const imagenFinal = img && img.trim() !== ""
+        ? img
+        : "/static/media/vacio.jpg";
+        const thumbFinal = thumbnail && thumbnail.trim() !== ""
+        ? thumbnail
+        : imagenFinal;
+    try {
+        const nuevaCarta = new Carta({ 
+            name, 
+            img: imagenFinal,
+            thumbnail: thumbFinal
+        });
+        await nuevaCarta.save();
+        res.status(201).json(nuevaCarta);
+    } catch (err) {
+        res.status(500).json({ error: "Error al guardar carta" });
+    }
 });
 
-app.delete('/cartas/:id', function(req, res) {
-    const id = parseInt(req.params.id);
-    cartas = cartas.filter(c => c.id !== id);
-    saveCartas(cartas);
-    res.json({ success: true });
+app.delete('/cartas/:id', async (req, res) => {
+    try {
+        await Carta.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Error al eliminar carta" });
+    }
 });
 
 app.use((req, res) => {
@@ -110,24 +127,22 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("startGame", () => {
+    socket.on("startGame", async () => {
         if (players.length >= 2 && !gameStarted) {
-            if (cartas.length < 6) {
-                io.emit("errorMessage", "Necesitas al menos 6 cartas creadas");
+            if (cartasDisponibles.length === 0) {
+                io.emit("errorMessage", "No quedan cartas disponibles. Reiniciando mazo...");
+                resetCartasDisponibles();
                 return;
             }
 
             gameStarted = true;
 
-            // elegir 6 cartas aleatorias
-            const shuffled = shuffleArray(cartasDisponibles);
-            const selected = shuffled.slice(0, 6);
-
-            // elegir una carta para todos
-            const chosenCard = selected[Math.floor(Math.random() * selected.length)];
+            // elegir una carta aleatoria
+            const chosenIndex = Math.floor(Math.random() * cartasDisponibles.length);
+            const chosenCard = cartasDisponibles[chosenIndex];
 
             // carta impostor
-            const impostorCard = { name: "impostor", img: "/static/media/vacio.jpg" };
+            const impostorCard = { name: "impostor", img: "/static/media/vacio.jpg", thumbnail: "/static/media/vacio.jpg" };
 
             // repartir: todos reciben el mismo nombre excepto uno
             const impostorIndex = Math.floor(Math.random() * players.length);
@@ -135,15 +150,12 @@ io.on("connection", (socket) => {
                 io.to(player.id).emit("yourCard", i === impostorIndex ? impostorCard : chosenCard);
             });
 
-            cartasDisponibles = cartasDisponibles.filter(c => !selected.includes(c));
+            cartasDisponibles.splice(chosenIndex, 1);
         }
     });
 
     socket.on("nextGame", () => {
         if (players.length >= 2) {
-            if (cartasDisponibles.length < 6) {
-                cartasDisponibles = [...cartas];
-            }
             gameStarted = false;
             io.emit("waitingRoom", players);
         }
@@ -159,15 +171,6 @@ io.on("connection", (socket) => {
         }
     });
 });
-
-function shuffleArray(array) {
-    const arr = [...array];
-    for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr;
-}
 
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => {

@@ -30,7 +30,6 @@ button {
   background-image: url("../assets/equipo-bn.webp");
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center bottom;
   background-position-y: top;
 }
 
@@ -44,7 +43,6 @@ button {
   background-image: url("../assets/equipo.webp");
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center bottom;
   clip-path: circle(8% at center center);
   animation: flashlight 20s ease infinite;
   background-position-y: top;

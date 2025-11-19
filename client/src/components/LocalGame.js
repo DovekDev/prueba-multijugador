@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "../styles/LocalGame.css";
+import impostor from "../assets/vacio.jpg";
 
 function shuffleArray(array) {
     const arr = [...array];
@@ -49,7 +50,7 @@ function LocalGame() {
         const shuffledPool = shuffleArray(cartasDisponibles);
         const realCard = shuffledPool[0];
 
-        const impostorCard = { name: "impostor", img: "../assets/logo.png"};
+        const impostorCard = { name: "impostor", img: "/static/media/vacio.jpg"};
 
         const roundCards = Array(numPlayers - 1).fill(realCard).concat(impostorCard);
 
@@ -81,7 +82,7 @@ function LocalGame() {
             {selectedCards.length === 0 ? (
                 <div>
                     <h2>Juego Local</h2>
-                    <input type="number" value={numPlayers} onChange={(e) => setNumPlayers(parseInt(e.target.value))} placeholder="Número de jugadores" />
+                    <input style={{ height: "40px"}} type="number" value={numPlayers} onChange={(e) => setNumPlayers(parseInt(e.target.value))} placeholder="Número de jugadores" />
                     <button onClick={startGame}>Jugar</button>
                 </div>
             ) : (
@@ -106,7 +107,10 @@ function LocalGame() {
                     ) : (
                         <div>
                             <img 
-                            src={selectedCards[currentPlayer].img}
+                            src={selectedCards[currentPlayer].name === "impostor"
+                            ? impostor
+                            : selectedCards[currentPlayer].img }
+                            onError={(e) => { e.target.src = selectedCards[currentPlayer].thumbnail; }}
                             alt={selectedCards[currentPlayer].name}
                             style={{ width: "100%", borderRadius: "10px"}}
                             />

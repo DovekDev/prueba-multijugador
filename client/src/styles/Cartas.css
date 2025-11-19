@@ -1,6 +1,5 @@
 :root {
     --spacing-r: 1.5rem;
-    --spacing-l: 3rem;
 }
 
 [data-visibility="hidden"] {
